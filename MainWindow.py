@@ -1,6 +1,9 @@
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+"""
+    MainWindow
+"""
 import webbrowser
 import json
+from PyQt5.QtWidgets import QMainWindow, QFileDialog
 
 from UIMainWindowForm import Ui_MainWindow
 import AboutDialog
@@ -8,6 +11,8 @@ import app_info
 
 
 class MainWindow(QMainWindow):
+    """class"""
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -38,6 +43,7 @@ class MainWindow(QMainWindow):
         self.__db_verbose = 0
 
     def project_new(self):
+        """project_new"""
         self.__project = {
             "db_url": self.__db_url,
             "grid_file": self.__grid_file,
@@ -52,6 +58,7 @@ class MainWindow(QMainWindow):
         self.__project_file = None
 
     def project_open(self):
+        """project_open"""
         previous_file = self.__project_file
 
         self.__project_file, _ = QFileDialog.getOpenFileName(
@@ -69,17 +76,19 @@ class MainWindow(QMainWindow):
         self.project_read_from_file()
 
     def project_read_from_file(self):
-        pass
+        """project_read_from_file"""
 
     def project_save_to_file(self):
+        """project_save_to_file"""
         file = open(self.__project_file, 'w')
         json.dump(self.__project, file)
         file.close()
 
     def project_save(self):
-        pass
+        """project_save"""
 
     def project_save_as(self):
+        """project_save_as"""
         project_file, _ = QFileDialog.getSaveFileName(
             self,
             "Save as file",
@@ -96,14 +105,15 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def help_license():
+        """help_license"""
         webbrowser.open(app_info.LICENSE_URL)
 
-    def help_about(self):
-        """
-            Displays Application About Dialog
-        """
+    @staticmethod
+    def help_about():
+        """Displays Application About Dialog"""
         dlg = AboutDialog.AboutDialog()
         dlg.exec_()
 
     def quit(self):
+        """close app"""
         self.close()

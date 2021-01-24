@@ -31,7 +31,7 @@ jobs:
     - name: Lint
       if: matrix.os != 'windows-latest'
       run: |
-        pylint *.py --ignore-patterns=__init*
+        pylint *.py
     - name: Tests
       run: |
         python -m unittest discover tests

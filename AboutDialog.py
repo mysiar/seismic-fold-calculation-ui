@@ -1,6 +1,4 @@
-"""
-    Application About Dialog
-"""
+"""Application About Dialog"""
 import os
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
@@ -15,9 +13,7 @@ import app_info
 
 
 class AboutDialog(QDialog):
-    """
-        AboutDialog
-    """
+    """AboutDialog"""
     def __init__(self):
         super().__init__()
 

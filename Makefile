@@ -14,7 +14,9 @@ test:
 .PHONY: test
 
 lint:
-	pylint *.py --ignore-patterns=test_.*?py,__init*
+#--ignore-patterns set in .pylintrc
+	pylint *.py
+
 .PHONY: lint
 
 # pip install pyuic5-tool
