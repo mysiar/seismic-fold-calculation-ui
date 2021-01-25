@@ -2,7 +2,7 @@
     App Information
 """
 
-VERSION = '0.0.0'
+VERSION = '0.0.1'
 TITLE = 'Seismic Fold Calculation UI'
 AUTHOR = 'Piotr Synowiec'
 AUTHOR_EMAIL = 'psynowiec@gmail.com'
