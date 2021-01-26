@@ -56,23 +56,6 @@ class MainWindow(QMainWindow):
         self.ui.verbose.stateChanged.connect(self.__form_changed)
         self.ui.db_verbose.stateChanged.connect(self.__form_changed)
 
-    def project_new(self):
-        """project_new"""
-        self.__project = {
-            DB_URL: "",
-            GRID: "",
-            SPS: "",
-            RPS: "",
-            XPS: "",
-            VERBOSE: 1,
-            DB_VERBOSE: 0
-        }
-
-        self.ui.actionSave_as_project.setEnabled(True)
-        self.ui.db_url.setText('')
-        self.__project_file = None
-        self.__project_changed = False
-
     def grid_file_open(self):
         """grid_file_open"""
         previous_file = self.ui.grid_file.text()
@@ -119,6 +102,23 @@ class MainWindow(QMainWindow):
             return file
         else:
             return previous_file
+
+    def project_new(self):
+        """project_new"""
+        self.__project = {
+            DB_URL: "",
+            GRID: "",
+            SPS: "",
+            RPS: "",
+            XPS: "",
+            VERBOSE: 1,
+            DB_VERBOSE: 0
+        }
+
+        self.ui.actionSave_as_project.setEnabled(True)
+        self.ui.db_url.setText('')
+        self.__project_file = None
+        self.__project_changed = False
 
     def project_open(self):
         """project_open"""
