@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
 )
 
-import app_info
+import app.app_info
 
 
 class AboutDialog(QDialog):
@@ -25,7 +25,7 @@ class AboutDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        title = QLabel(app_info.TITLE)
+        title = QLabel(app.app_info.TITLE)
         font = title.font()
         font.setPointSize(20)
         title.setFont(font)
@@ -33,16 +33,16 @@ class AboutDialog(QDialog):
         layout.addWidget(title)
 
         logo = QLabel()
-        logo.setPixmap(QPixmap(os.path.join("icons", "vibrator-256.png")))
+        logo.setPixmap(QPixmap(os.path.join("../ui/icons", "vibrator-256.png")))
         layout.addWidget(logo)
 
-        layout.addWidget(QLabel("Version: " + app_info.VERSION))
-        layout.addWidget(QLabel(app_info.AUTHOR))
-        layout.addWidget(QLabel(app_info.AUTHOR_EMAIL))
-        link_label = QLabel('<a href="' + app_info.AUTHOR_WEB + '">' + app_info.AUTHOR_WEB + '</a>')
+        layout.addWidget(QLabel("Version: " + app.app_info.VERSION))
+        layout.addWidget(QLabel(app.app_info.AUTHOR))
+        layout.addWidget(QLabel(app.app_info.AUTHOR_EMAIL))
+        link_label = QLabel('<a href="' + app.app_info.AUTHOR_WEB + '">' + app.app_info.AUTHOR_WEB + '</a>')
         link_label.setOpenExternalLinks(True)
         layout.addWidget(link_label)
-        layout.addWidget(QLabel(app_info.APP_DATE))
+        layout.addWidget(QLabel(app.app_info.APP_DATE))
 
         for i in range(0, layout.count()):
             layout.itemAt(i).setAlignment(Qt.AlignHCenter)

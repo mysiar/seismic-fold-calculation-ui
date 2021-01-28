@@ -5,9 +5,8 @@ import webbrowser
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 
 from UIMainWindowForm import Ui_MainWindow
-import AboutDialog
-import app_info
-from file_access import read_dict_from_file, write_dict_to_file
+from app import AboutDialog, app_info
+from app.file_access import read_dict_from_file, write_dict_to_file
 
 DB_URL = 'db_url'
 GRID = 'grid_file'

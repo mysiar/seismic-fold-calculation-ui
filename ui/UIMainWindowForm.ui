@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>793</width>
-    <height>397</height>
+    <width>851</width>
+    <height>812</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,37 +19,78 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>771</width>
-      <height>331</height>
+      <width>831</width>
+      <height>291</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
     <property name="title">
-     <string/>
+     <string>Project</string>
     </property>
-    <widget class="QWidget" name="gridLayoutWidget">
+    <widget class="QWidget" name="gridLayoutWidget_2">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>751</width>
-       <height>291</height>
+       <width>811</width>
+       <height>251</height>
       </rect>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="3" column="2">
+       <widget class="QLabel" name="rps_file">
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
         <property name="text">
-         <string>DB URL</string>
+         <string/>
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Grid file</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="db_url">
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2">
+       <widget class="QCheckBox" name="db_verbose">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QLabel" name="xps_file">
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>XPS file</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
        <widget class="QLabel" name="grid_file">
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -59,66 +100,38 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QPushButton" name="rps_file_btn">
-        <property name="text">
-         <string>RPS file</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QLineEdit" name="db_url"/>
-      </item>
-      <item row="5" column="3">
-       <widget class="QCheckBox" name="verbose">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="QCheckBox" name="db_verbose">
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QPushButton" name="xps_file_btn">
-        <property name="text">
-         <string>XPS file</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="label_6">
-        <property name="text">
-         <string>Verbose</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="grid_file_btn">
-        <property name="text">
-         <string>Grid file</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="0">
-       <widget class="QPushButton" name="sps_file_btn">
+       <widget class="QLabel" name="label_3">
         <property name="text">
          <string>SPS file</string>
         </property>
        </widget>
       </item>
-      <item row="6" column="0">
-       <widget class="QLabel" name="label_7">
+      <item row="6" column="2">
+       <widget class="QCheckBox" name="verbose">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
-         <string>DB verbose</string>
+         <string/>
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Verbose</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>RPS file</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
        <widget class="QLabel" name="sps_file">
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -131,18 +144,35 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="3">
-       <widget class="QLabel" name="rps_file">
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_6">
         <property name="text">
-         <string/>
+         <string>Fold file</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="3">
-       <widget class="QLabel" name="xps_file">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>DB URL</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>DB verbose</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QLabel" name="fold_file">
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
@@ -154,13 +184,244 @@
      </layout>
     </widget>
    </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>310</y>
+      <width>831</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Fold</string>
+    </property>
+    <widget class="QWidget" name="gridLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>811</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="10">
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="6">
+       <widget class="QPushButton" name="fold_update_btn">
+        <property name="text">
+         <string>Update</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="db_table_create_btn">
+        <property name="text">
+         <string>Create DB table</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="13">
+       <spacer name="horizontalSpacer_9">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="3">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="9">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="11">
+       <spacer name="horizontalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="fold_calculate_btn">
+        <property name="text">
+         <string>Calculate</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="14">
+       <spacer name="horizontalSpacer_10">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="8">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="4">
+       <widget class="QPushButton" name="fold_load_btn">
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="12">
+       <spacer name="horizontalSpacer_8">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="15">
+       <widget class="QPushButton" name="db_table_delete_btn">
+        <property name="text">
+         <string>Delete DB table</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>390</y>
+      <width>831</width>
+      <height>341</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Output</string>
+    </property>
+    <widget class="QWidget" name="gridLayoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>811</width>
+       <height>301</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="QTextBrowser" name="output"/>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QProgressBar" name="progress_bar">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>740</y>
+      <width>831</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>793</width>
+     <width>851</width>
      <height>22</height>
     </rect>
    </property>
@@ -168,10 +429,7 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionNew_project"/>
     <addaction name="actionOpen_project"/>
-    <addaction name="actionSave_project"/>
-    <addaction name="actionSave_as_project"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -188,7 +446,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionNew_project">
    <property name="icon">
-    <iconset resource="../resources.qrc">
+    <iconset>
      <normaloff>:/sfc-ui/icons/folder--plus-24.png</normaloff>:/sfc-ui/icons/folder--plus-24.png</iconset>
    </property>
    <property name="text">
@@ -198,7 +456,7 @@
   <action name="actionOpen_project">
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/sfc-ui/icons/folder-open-document-24.png</normaloff>:/sfc-ui/icons/folder-open-document-24.png</iconset>
+     <normaloff>:/sfc-ui/ui/icons/folder-open-document-24.png</normaloff>:/sfc-ui/ui/icons/folder-open-document-24.png</iconset>
    </property>
    <property name="text">
     <string>Open project</string>
@@ -206,7 +464,7 @@
   </action>
   <action name="actionSave_project">
    <property name="icon">
-    <iconset resource="../resources.qrc">
+    <iconset>
      <normaloff>:/sfc-ui/icons/disk-24.png</normaloff>:/sfc-ui/icons/disk-24.png</iconset>
    </property>
    <property name="text">
@@ -215,7 +473,7 @@
   </action>
   <action name="actionSave_as_project">
    <property name="icon">
-    <iconset resource="../resources.qrc">
+    <iconset>
      <normaloff>:/sfc-ui/icons/disk-24.png</normaloff>:/sfc-ui/icons/disk-24.png</iconset>
    </property>
    <property name="text">
@@ -225,7 +483,7 @@
   <action name="actionQuit">
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/sfc-ui/icons/cross-24.png</normaloff>:/sfc-ui/icons/cross-24.png</iconset>
+     <normaloff>:/sfc-ui/ui/icons/cross-24.png</normaloff>:/sfc-ui/ui/icons/cross-24.png</iconset>
    </property>
    <property name="text">
     <string>Quit</string>
@@ -234,7 +492,7 @@
   <action name="actionLicense">
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/sfc-ui/icons/key-16.png</normaloff>:/sfc-ui/icons/key-16.png</iconset>
+     <normaloff>:/sfc-ui/ui/icons/key-16.png</normaloff>:/sfc-ui/ui/icons/key-16.png</iconset>
    </property>
    <property name="text">
     <string>License</string>
@@ -243,7 +501,7 @@
   <action name="actionAbout">
    <property name="icon">
     <iconset resource="../resources.qrc">
-     <normaloff>:/sfc-ui/icons/information-button-24.png</normaloff>:/sfc-ui/icons/information-button-24.png</iconset>
+     <normaloff>:/sfc-ui/ui/icons/information-button-24.png</normaloff>:/sfc-ui/ui/icons/information-button-24.png</iconset>
    </property>
    <property name="text">
     <string>About</string>

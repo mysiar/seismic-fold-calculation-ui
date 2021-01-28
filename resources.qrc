@@ -1,15 +1,15 @@
 <RCC>
   <qresource prefix="sfc-ui">
-    <file>icons/cross-16.png</file>
-    <file>icons/information-button-16.png</file>
-    <file>icons/information-button-24.png</file>
-    <file>icons/key-16.png</file>
-    <file>icons/cross-24.png</file>
-    <file>icons/disk-16.png</file>
-    <file>icons/disk-24.png</file>
-    <file>icons/folder-open-document-16.png</file>
-    <file>icons/folder-open-document-24.png</file>
-    <file>icons/folder--plus-16.png</file>
-    <file>icons/folder--plus-24.png</file>
+    <file>ui/icons/cross-16.png</file>
+    <file>ui/icons/cross-24.png</file>
+    <file>ui/icons/disk-16.png</file>
+    <file>ui/icons/disk-24.png</file>
+    <file>ui/icons/folder-open-document-16.png</file>
+    <file>ui/icons/folder-open-document-24.png</file>
+    <file>ui/icons/folder--plus-16.png</file>
+    <file>ui/icons/folder--plus-24.png</file>
+    <file>ui/icons/information-button-16.png</file>
+    <file>ui/icons/information-button-24.png</file>
+    <file>ui/icons/key-16.png</file>
   </qresource>
 </RCC>

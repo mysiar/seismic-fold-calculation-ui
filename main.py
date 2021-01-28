@@ -1,7 +1,7 @@
 """main app"""
 import sys
 from PyQt5.QtWidgets import QApplication
-import MainWindow
+from app import MainWindow
 
 
 def main():

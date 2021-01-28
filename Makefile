@@ -21,6 +21,6 @@ lint:
 
 # pip install pyuic5-tool
 ui:
-	python -m PyQt5.uic.pyuic ui/UIMainWindowForm.ui -o UIMainWindowForm.py
+	python -m PyQt5.uic.pyuic ui/UIMainWindowForm.ui -o ui/UIMainWindowForm.py
 	pyrcc5 resources.qrc -o resources_rc.py
 .PHONY: ui
