@@ -1,4 +1,3 @@
-import sys
 import csv
 from sqlalchemy.orm import sessionmaker
 from PyQt5.QtWidgets import QTextBrowser, QProgressBar

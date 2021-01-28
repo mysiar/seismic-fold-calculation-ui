@@ -7,6 +7,9 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen
 
+from FixedWidthTextParser.Seismic.SpsParser import Sps21Parser
+from SeismicFoldUi.Grid import Grid
+from SeismicFoldUi.FoldUi import FoldUi
 from SeismicFoldDbGisUi.FoldDbGisUi import FoldDbGisUi
 from ui.UIMainWindowForm import Ui_MainWindow
 import app.AboutDialog
@@ -76,20 +79,50 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.ui.output.append(str(e))
         self.__enable_buttons()
+        self.__end_of_proc()
 
     def action_db_table_delete(self):
         self.__disable_buttons()
-        engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
-        fold = FoldDbGisUi(db_engine=engine, output=self.ui.output, progress_bar=self.ui.progress_bar)
         try:
+            engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
+            fold = FoldDbGisUi(db_engine=engine, output=self.ui.output, progress_bar=self.ui.progress_bar)
             fold.delete_table()
             self.ui.output.append('Table deleted.')
         except Exception as e:
             self.ui.output.append(str(e))
         self.__enable_buttons()
+        self.__end_of_proc()
 
     def action_fold_calculate(self):
         """calculate fold"""
+        self.__disable_buttons()
+        try:
+            start = time.time()
+            self.ui.output.append('Calculating fold...')
+            parser = Sps21Parser()
+            grid = Grid()
+            grid.read(self.ui.grid_file.text())
+            fold = FoldUi(
+                grid=grid,
+                parser=parser,
+                sps_file=self.ui.sps_file.text(),
+                rps_file=self.ui.rps_file.text(),
+                xps_file=self.ui.xps_file.text(),
+                output=self.ui.output,
+                progress_bar=self.ui.progress_bar
+            )
+            fold.load_data()
+            fold.calculate_fold()
+            self.ui.output.append('Calculated in ' + self.timer(start, time.time()))
+            self.ui.output.append('Writing to CSV file...')
+            start = time.time()
+            fold.write_fold2csv(self.ui.fold_file.text())
+            self.ui.output.append('Written in ' + self.timer(start, time.time()))
+        except Exception as e:
+            self.ui.output.append(str(e))
+
+        self.__enable_buttons()
+        self.__end_of_proc()
 
     def action_fold_load(self):
         """load fold from csv file"""
@@ -104,6 +137,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.ui.output.append(str(e))
         self.__enable_buttons()
+        self.__end_of_proc()
 
     def action_fold_update(self):
         """updating fold from csv file"""
@@ -118,6 +152,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.ui.output.append(str(e))
         self.__enable_buttons()
+        self.__end_of_proc()
 
     def project_open(self):
         """project_open"""
@@ -201,3 +236,6 @@ class MainWindow(QMainWindow):
         hours, rem = divmod(end - start, 3600)
         minutes, seconds = divmod(rem, 60)
         return "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+
+    def __end_of_proc(self):
+        self.ui.output.append('_________________________________________')

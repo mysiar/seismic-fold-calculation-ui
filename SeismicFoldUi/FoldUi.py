@@ -1,12 +1,13 @@
-import sys
+import time
 import csv
+from PyQt5.QtWidgets import QTextBrowser, QProgressBar
 
 from FixedWidthTextParser.Seismic.SpsParser import SpsParser, Relation, Point
 from SeismicFoldUi.Grid import Grid
 from SeismicFoldUi.helpers import create_point_by_easting_northing
 
 
-class Fold:
+class FoldUi:
     def __init__(
             self,
             grid: Grid,
@@ -14,7 +15,8 @@ class Fold:
             sps_file: str,
             rps_file: str,
             xps_file: str,
-            verbose=False,
+            output: QTextBrowser,
+            progress_bar: QProgressBar,
             every=10000
     ):
         self.__parser = parser
@@ -30,8 +32,9 @@ class Fold:
         self.__row: dict = {}  # key is bin number
         self.__col: dict = {}  # key is bin number
 
-        self.__verbose = verbose
         self.__every = every
+        self.__output = output
+        self.__progress_bar = progress_bar
 
     def get_sps(self):
         return self.__sps
@@ -41,6 +44,11 @@ class Fold:
 
     def __load_points(self, filename):
         points = []
+        number_of_records = FoldUi.__count_file_line_number(filename)
+        self.__output.append('Number of points ' + "{:15,d}".format(number_of_records))
+        self.__progress_bar.setMinimum(1)
+        self.__progress_bar.setMaximum(number_of_records)
+        counter = 1
         with open(filename) as sps:
             line = sps.readline()
             while line:
@@ -48,14 +56,21 @@ class Fold:
                 if parsed is not None:
                     points.append(Point(parsed))
                 line = sps.readline()
+                self.__progress_bar.setValue(counter)
+                counter += 1
         return points
 
     def load_sps(self):
+        self.__output.append('Loading source points')
+        start = time.time()
         point: Point
         for point in self.__load_points(self.__sps_file):
-            self.__sps[Fold.combine_point_number(point)] = point
+            self.__sps[FoldUi.combine_point_number(point)] = point
+        self.__output.append('Loaded in ' + self.timer(start, time.time()))
 
     def load_rps(self):
+        self.__output.append('Loading receiver points')
+        start = time.time()
         point: Point
         for point in self.__load_points(self.__rps_file):
             number = point.line
@@ -63,6 +78,7 @@ class Fold:
                 self.__rps[number].append(point)
             else:
                 self.__rps[number] = [point]
+        self.__output.append('Loaded in ' + self.timer(start, time.time()))
 
     def load_data(self):
         self.load_sps()
@@ -93,39 +109,38 @@ class Fold:
         previous_sln: float = 0
         previous_spn: float = 0
         previous_sidx: int = 0
-
-        counter = 0
+        self.__output.append('Start fold calculation')
+        number_of_records = FoldUi.__count_file_line_number(self.__xps_file)
+        self.__output.append(('Number of relation records ' + "{:15,d}".format(number_of_records)))
+        self.__progress_bar.setMinimum(1)
+        self.__progress_bar.setMaximum(number_of_records)
+        counter = 1
         with open(self.__xps_file, mode='r', buffering=(2 << 16) + 8) as xps:
             line = xps.readline()
             while line:
                 relation = self.parse_xps_record(line)
                 if relation is not None:
-                    if self.__verbose is True:
-                        counter += 1
-                        if counter % self.__every == 0:
-                            sys.stdout.write("{:15,d}\n".format(counter))
-                            sys.stdout.flush()
-                            if self.__gui_output is not None:
-                                self.__gui_output.append("{:15,d}\n".format(counter))
-                    sln = relation.line
-                    spn = relation.point
-                    sidx = relation.point_idx
+                    if counter % self.__every == 0:
+                        self.__output.append("{:15,d}".format(counter))
+                    self.__progress_bar.setValue(counter)
+                    counter += 1
+                sln = relation.line
+                spn = relation.point
+                sidx = relation.point_idx
 
-                    if sln != previous_sln or spn != previous_spn or sidx != previous_sidx:
-                        combined_sp = self.combine_point_number_from_partials(sln, spn, sidx)
-                        sp: Point
-                        sp = self.__sps[combined_sp]
+                if sln != previous_sln or spn != previous_spn or sidx != previous_sidx:
+                    combined_sp = self.combine_point_number_from_partials(sln, spn, sidx)
+                    sp: Point
+                    sp = self.__sps[combined_sp]
 
-                    previous_sln = sln
-                    previous_spn = spn
-                    previous_sidx = sidx
+                previous_sln = sln
+                previous_spn = spn
+                previous_sidx = sidx
 
-                    self.calculate_fold4xps_record(sp, relation)
-
+                self.calculate_fold4xps_record(sp, relation)
                 line = xps.readline()
-            if self.__verbose is True:
-                sys.stdout.write("{:15,d}\n".format(counter))
-                sys.stdout.flush()
+
+        self.__output.append("{:15,d}".format(counter))
 
     def parse_xps_record(self, record: str):
         parsed = self.__parser.parse_relation(record)
@@ -196,3 +211,14 @@ class Fold:
             ])
 
         csv_file.close()
+
+    @staticmethod
+    def __count_file_line_number(filename: str):
+        return sum(1 for line in open(filename))
+
+    @staticmethod
+    def timer(start, end):
+        """ timer """
+        hours, rem = divmod(end - start, 3600)
+        minutes, seconds = divmod(rem, 60)
+        return "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
