@@ -8,6 +8,7 @@ def main():
     """main app function"""
     app = QApplication(sys.argv)
     window = MainWindow.MainWindow()
+
     window.show()
     app.exec_()
 

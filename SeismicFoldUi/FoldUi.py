@@ -1,13 +1,19 @@
 import time
 import csv
-from PyQt5.QtWidgets import QTextBrowser, QProgressBar
+from PyQt5.QtCore import QThread, pyqtSignal
 
 from FixedWidthTextParser.Seismic.SpsParser import SpsParser, Relation, Point
 from SeismicFoldUi.Grid import Grid
 from SeismicFoldUi.helpers import create_point_by_easting_northing
 
 
-class FoldUi:
+class FoldUi(QThread):
+    finished = pyqtSignal()
+    progress = pyqtSignal(int)
+    number_of_records = pyqtSignal(int)
+    loading = pyqtSignal(str)
+    part_done = pyqtSignal()
+
     def __init__(
             self,
             grid: Grid,
@@ -15,15 +21,16 @@ class FoldUi:
             sps_file: str,
             rps_file: str,
             xps_file: str,
-            output: QTextBrowser,
-            progress_bar: QProgressBar,
+            fold_file: str,
             every=10000
     ):
+        QThread.__init__(self)
         self.__parser = parser
         self.__grid = grid
         self.__sps_file = sps_file
         self.__rps_file = rps_file
         self.__xps_file = xps_file
+        self.__fold_file = fold_file
 
         self.__sps: dict = {}  # key is combined line point index, value is Point object
         self.__rps: dict = {}  # key is line, value is List of Point objects
@@ -33,8 +40,6 @@ class FoldUi:
         self.__col: dict = {}  # key is bin number
 
         self.__every = every
-        self.__output = output
-        self.__progress_bar = progress_bar
 
     def get_sps(self):
         return self.__sps
@@ -45,10 +50,8 @@ class FoldUi:
     def __load_points(self, filename):
         points = []
         number_of_records = FoldUi.__count_file_line_number(filename)
-        self.__output.append('Number of points ' + "{:15,d}".format(number_of_records))
-        self.__progress_bar.setMinimum(1)
-        self.__progress_bar.setMaximum(number_of_records)
-        counter = 1
+        self.number_of_records.emit(number_of_records)
+        counter = 0
         with open(filename) as sps:
             line = sps.readline()
             while line:
@@ -56,20 +59,22 @@ class FoldUi:
                 if parsed is not None:
                     points.append(Point(parsed))
                 line = sps.readline()
-                self.__progress_bar.setValue(counter)
+                # self.__progress_bar.setValue(counter)
+                self.progress.emit(counter)
                 counter += 1
         return points
 
     def load_sps(self):
-        self.__output.append('Loading source points')
+        self.loading.emit('Loading source points')
         start = time.time()
         point: Point
         for point in self.__load_points(self.__sps_file):
             self.__sps[FoldUi.combine_point_number(point)] = point
-        self.__output.append('Loaded in ' + self.timer(start, time.time()))
+        self.loading.emit('Loaded in ' + self.timer(start, time.time()))
+        self.part_done.emit()
 
     def load_rps(self):
-        self.__output.append('Loading receiver points')
+        self.loading.emit('Loading receiver points')
         start = time.time()
         point: Point
         for point in self.__load_points(self.__rps_file):
@@ -78,7 +83,9 @@ class FoldUi:
                 self.__rps[number].append(point)
             else:
                 self.__rps[number] = [point]
-        self.__output.append('Loaded in ' + self.timer(start, time.time()))
+
+        self.loading.emit('Loaded in ' + self.timer(start, time.time()))
+        self.part_done.emit()
 
     def load_data(self):
         self.load_sps()
@@ -105,24 +112,22 @@ class FoldUi:
         return points_range
 
     def calculate_fold(self):
+        start = time.time()
+        self.loading.emit('Calculating fold')
+        number_of_records = FoldUi.__count_file_line_number(self.__xps_file)
+        self.number_of_records.emit(number_of_records)
 
         previous_sln: float = 0
         previous_spn: float = 0
         previous_sidx: int = 0
-        self.__output.append('Start fold calculation')
-        number_of_records = FoldUi.__count_file_line_number(self.__xps_file)
-        self.__output.append(('Number of relation records ' + "{:15,d}".format(number_of_records)))
-        self.__progress_bar.setMinimum(1)
-        self.__progress_bar.setMaximum(number_of_records)
-        counter = 1
+        counter = 0
         with open(self.__xps_file, mode='r', buffering=(2 << 16) + 8) as xps:
             line = xps.readline()
             while line:
                 relation = self.parse_xps_record(line)
+                self.progress.emit(counter)
                 if relation is not None:
-                    if counter % self.__every == 0:
-                        self.__output.append("{:15,d}".format(counter))
-                    self.__progress_bar.setValue(counter)
+
                     counter += 1
                 sln = relation.line
                 spn = relation.point
@@ -140,7 +145,8 @@ class FoldUi:
                 self.calculate_fold4xps_record(sp, relation)
                 line = xps.readline()
 
-        self.__output.append("{:15,d}".format(counter))
+        self.loading.emit('Calculated in ' + self.timer(start, time.time()))
+        self.part_done.emit()
 
     def parse_xps_record(self, record: str):
         parsed = self.__parser.parse_relation(record)
@@ -181,8 +187,11 @@ class FoldUi:
 
             self.add_fold_to_bin(binn, bin.column, bin.row)
 
-    def write_fold2csv(self, filename: str):
-        csv_file = open(filename, "w")
+    def write_fold2csv(self):
+        start = time.time()
+        self.loading.emit('Writing fold to CSV')
+
+        csv_file = open(self.__fold_file, "w")
 
         csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(['Easting', 'Northing', 'Fold', 'Bin Number', 'Row', 'Column'])
@@ -209,8 +218,11 @@ class FoldUi:
                 r,
                 c
             ])
+            self.progress.emit(1)
 
         csv_file.close()
+        self.loading.emit('Written in ' + self.timer(start, time.time()))
+        self.part_done.emit()
 
     @staticmethod
     def __count_file_line_number(filename: str):
@@ -222,3 +234,9 @@ class FoldUi:
         hours, rem = divmod(end - start, 3600)
         minutes, seconds = divmod(rem, 60)
         return "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
+
+    def run(self):
+        self.load_data()
+        self.calculate_fold()
+        self.write_fold2csv()
+        self.finished.emit()

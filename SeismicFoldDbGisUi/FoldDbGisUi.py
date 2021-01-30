@@ -7,11 +7,9 @@ from SeismicFoldDbGisUi.entity.Bin import Bin
 
 class FoldDbGisUi:
 
-    def __init__(self, db_engine, output: QTextBrowser, progress_bar: QProgressBar, commit_every=10000):
+    def __init__(self, db_engine, commit_every=10000):
         self.__db_engine = db_engine
         self.__commit_every = commit_every
-        self.__output = output
-        self.__progress_bar = progress_bar
 
     def create_table(self):
         Bin.__table__.create(self.__db_engine)
@@ -25,8 +23,8 @@ class FoldDbGisUi:
         load from CSV with columns ['Easting', 'Northing', 'Fold', 'Bin Number', 'Row', 'Column']
         """
         number_of_records = FoldDbGisUi.__count_file_line_number(filename)
-        self.__progress_bar.setMinimum(1)
-        self.__progress_bar.setMaximum(number_of_records)
+        # self.__progress_bar.setMinimum(1)
+        # self.__progress_bar.setMaximum(number_of_records)
         _session = self.__create_session()
         counter = 1
         with open(filename, 'r') as csv_file:
@@ -36,13 +34,13 @@ class FoldDbGisUi:
                 bin = FoldDbGisUi.__create_bin_from_csv_record(record)
                 _session.add(bin)
                 if counter % self.__commit_every == 0:
-                    self.__output.append("{:15,d}".format(counter))
+                    # self.__output.append("{:15,d}".format(counter))
                     _session.commit()
-                self.__progress_bar.setValue(counter)
+                # self.__progress_bar.setValue(counter)
                 counter += 1
 
-            self.__output.append("{:15,d}".format(counter))
-            self.__progress_bar.setValue(counter)
+            # self.__output.append("{:15,d}".format(counter))
+            # self.__progress_bar.setValue(counter)
             _session.commit()
         _session.close()
 
@@ -51,8 +49,8 @@ class FoldDbGisUi:
         update from CSV with columns ['Easting', 'Northing', 'Fold', 'Bin Number', 'Row', 'Column']
         """
         number_of_records = FoldDbGisUi.__count_file_line_number(filename)
-        self.__progress_bar.setMinimum(1)
-        self.__progress_bar.setMaximum(number_of_records)
+        # self.__progress_bar.setMinimum(1)
+        # self.__progress_bar.setMaximum(number_of_records)
         _session = self.__create_session()
         counter = 1
         with open(filename, 'r') as csv_file:
@@ -69,13 +67,13 @@ class FoldDbGisUi:
                     _session.add(b)
 
                 if counter % self.__commit_every == 0:
-                    self.__output.append("{:15,d}".format(counter))
+                    # self.__output.append("{:15,d}".format(counter))
                     _session.commit()
                 self.__progress_bar.setValue(counter)
                 counter += 1
 
-            self.__output.append("{:15,d}".format(counter))
-            self.__progress_bar.setValue(counter)
+            # self.__output.append("{:15,d}".format(counter))
+            # self.__progress_bar.setValue(counter)
             _session.commit()
         _session.close()
 

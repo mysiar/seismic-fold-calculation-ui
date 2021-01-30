@@ -4,6 +4,7 @@
 import webbrowser
 import time
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtCore import Qt, QObject, QThread, pyqtSignal
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen
 
@@ -55,22 +56,22 @@ class MainWindow(QMainWindow):
 
         self.__project_file = None
 
-    def __disable_buttons(self):
-        self.ui.db_table_create_btn.setEnabled(False)
-        self.ui.db_table_delete_btn.setEnabled(False)
-        self.ui.fold_calculate_btn.setEnabled(False)
-        self.ui.fold_load_btn.setEnabled(False)
-        self.ui.fold_update_btn.setEnabled(False)
+        self.thread = None
+        self.worker = None
 
-    def __enable_buttons(self):
-        self.ui.db_table_create_btn.setEnabled(True)
-        self.ui.db_table_delete_btn.setEnabled(True)
-        self.ui.fold_calculate_btn.setEnabled(True)
-        self.ui.fold_load_btn.setEnabled(True)
-        self.ui.fold_update_btn.setEnabled(True)
+        self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint& ~Qt.WindowMaximizeButtonHint)
+
+    def __enable_ui(self, enable: bool):
+        self.ui.db_table_create_btn.setEnabled(enable)
+        self.ui.db_table_delete_btn.setEnabled(enable)
+        self.ui.fold_calculate_btn.setEnabled(enable)
+        self.ui.fold_load_btn.setEnabled(enable)
+        self.ui.fold_update_btn.setEnabled(enable)
+        self.ui.menu_file.setEnabled(enable)
 
     def action_db_table_create(self):
-        self.__disable_buttons()
+        self.__enable_ui(False)
         try:
             engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
             fold = FoldDbGisUi(db_engine=engine, output=self.ui.output, progress_bar=self.ui.progress_bar)
@@ -78,11 +79,11 @@ class MainWindow(QMainWindow):
             self.ui.output.append('Table created.')
         except Exception as e:
             self.ui.output.append(str(e))
-        self.__enable_buttons()
-        self.__end_of_proc()
+        self.__enable_ui(True)
+        self.end_of_proc()
 
     def action_db_table_delete(self):
-        self.__disable_buttons()
+        self.__enable_ui(False)
         try:
             engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
             fold = FoldDbGisUi(db_engine=engine, output=self.ui.output, progress_bar=self.ui.progress_bar)
@@ -90,43 +91,41 @@ class MainWindow(QMainWindow):
             self.ui.output.append('Table deleted.')
         except Exception as e:
             self.ui.output.append(str(e))
-        self.__enable_buttons()
-        self.__end_of_proc()
+        self.__enable_ui(True)
+        self.end_of_proc()
 
     def action_fold_calculate(self):
         """calculate fold"""
-        self.__disable_buttons()
-        try:
-            start = time.time()
-            self.ui.output.append('Calculating fold...')
-            parser = Sps21Parser()
-            grid = Grid()
-            grid.read(self.ui.grid_file.text())
-            fold = FoldUi(
-                grid=grid,
-                parser=parser,
-                sps_file=self.ui.sps_file.text(),
-                rps_file=self.ui.rps_file.text(),
-                xps_file=self.ui.xps_file.text(),
-                output=self.ui.output,
-                progress_bar=self.ui.progress_bar
-            )
-            fold.load_data()
-            fold.calculate_fold()
-            self.ui.output.append('Calculated in ' + self.timer(start, time.time()))
-            self.ui.output.append('Writing to CSV file...')
-            start = time.time()
-            fold.write_fold2csv(self.ui.fold_file.text())
-            self.ui.output.append('Written in ' + self.timer(start, time.time()))
-        except Exception as e:
-            self.ui.output.append(str(e))
+        # try:
+        parser = Sps21Parser()
+        grid = Grid()
+        grid.read(self.ui.grid_file.text())
 
-        self.__enable_buttons()
-        self.__end_of_proc()
+        self.__enable_ui(False)
+        self.thread = QThread()
+        # Step 3: Create a worker object
+        self.worker = FoldUi(
+            grid=grid,
+            parser=parser,
+            sps_file=self.ui.sps_file.text(),
+            rps_file=self.ui.rps_file.text(),
+            xps_file=self.ui.xps_file.text(),
+            fold_file=self.ui.fold_file.text(),
+        )
+
+        self.worker.progress.connect(self.signal_progress)
+        self.worker.number_of_records.connect(self.signal_number_of_records)
+        self.worker.loading.connect(self.signal_loading)
+        self.worker.part_done.connect(self.end_of_proc)
+        self.worker.start()
+        self.worker.finished.connect(self.signal_finished)
+
+        # except Exception as e:
+        #     self.ui.output.append(str(e))
 
     def action_fold_load(self):
         """load fold from csv file"""
-        self.__disable_buttons()
+        self.__enable_ui(False)
         try:
             start = time.time()
             engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
@@ -136,12 +135,12 @@ class MainWindow(QMainWindow):
             self.ui.output.append('Fold loaded in ' + self.timer(start, time.time()))
         except Exception as e:
             self.ui.output.append(str(e))
-        self.__enable_buttons()
-        self.__end_of_proc()
+        self.__enable_ui(True)
+        self.end_of_proc()
 
     def action_fold_update(self):
         """updating fold from csv file"""
-        self.__disable_buttons()
+        self.__enable_ui(False)
         try:
             start = time.time()
             engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
@@ -151,8 +150,8 @@ class MainWindow(QMainWindow):
             self.ui.output.append('Fold updated in ' + self.timer(start, time.time()))
         except Exception as e:
             self.ui.output.append(str(e))
-        self.__enable_buttons()
-        self.__end_of_proc()
+        self.__enable_ui(True)
+        self.end_of_proc()
 
     def project_open(self):
         """project_open"""
@@ -237,5 +236,20 @@ class MainWindow(QMainWindow):
         minutes, seconds = divmod(rem, 60)
         return "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
 
-    def __end_of_proc(self):
-        self.ui.output.append('_________________________________________')
+    def end_of_proc(self):
+        self.ui.output.append('-----------------------------------------------------')
+
+    def signal_progress(self, counter: int):
+        self.ui.progress_bar.setValue(counter)
+
+    def signal_number_of_records(self, number_of_records):
+        self.ui.output.append('Number of records: ' + str(number_of_records))
+        self.ui.progress_bar.setMinimum(1)
+        self.ui.progress_bar.setMaximum(number_of_records)
+
+    def signal_loading(self, msg: str):
+        self.ui.output.append(msg)
+
+    def signal_finished(self):
+        self.__enable_ui(True)
+        self.ui.progress_bar.setValue(1)
