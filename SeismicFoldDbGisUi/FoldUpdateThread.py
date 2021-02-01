@@ -1,10 +1,10 @@
 import csv
 import time
 from PyQt5.QtCore import QThread, pyqtSignal
-from SeismicFoldDbGisUi.FoldDbGisUi import FoldDbGisUi
+from SeismicFoldDbGisUi.FoldDbGisUi import FoldDbGisUi, Bin
 
 
-class FoldLoadThread(FoldDbGisUi, QThread):
+class FoldUpdateThread(FoldDbGisUi, QThread):
     finished = pyqtSignal()
     progress = pyqtSignal(int)
     number_of_records = pyqtSignal(int)
@@ -17,10 +17,10 @@ class FoldLoadThread(FoldDbGisUi, QThread):
         self.__csv_file = csv_file
 
     def run(self):
-        """functionality to load fold from CSV to db"""
+        """functionality to update fold from CSV in db"""
         try:
             start = time.time()
-            self.loading.emit('Loading fold to db')
+            self.loading.emit('Updating fold in db')
             number_of_records = self._count_file_line_number(self.__csv_file)
             self.number_of_records.emit(number_of_records)
             _session = self._create_session()
@@ -29,8 +29,15 @@ class FoldLoadThread(FoldDbGisUi, QThread):
                 csv_reader = csv.reader(csv_file, delimiter=',')
                 next(csv_reader)
                 for record in csv_reader:
-                    bin = FoldDbGisUi._create_bin_from_csv_record(record)
-                    _session.add(bin)
+                    binn = int(record[3])
+                    b = _session.query(Bin).filter_by(binn=binn).first()
+
+                    if b is not None:
+                        b.fold = b.fold + int(record[2])
+                    else:
+                        b = FoldDbGisUi._create_bin_from_csv_record(record)
+                        _session.add(b)
+
                     if counter % self._commit_every == 0:
                         _session.commit()
                     self.progress.emit(counter)
@@ -39,7 +46,7 @@ class FoldLoadThread(FoldDbGisUi, QThread):
                 self.progress.emit(counter)
                 _session.commit()
             _session.close()
-            self.loading.emit('Loaded in ' + self.timer(start, time.time()))
+            self.loading.emit('Updated in ' + self.timer(start, time.time()))
         except Exception as e:
             self.loading.emit(str(e))
 

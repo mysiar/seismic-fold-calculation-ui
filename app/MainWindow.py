@@ -4,7 +4,7 @@
 import webbrowser
 import time
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
-from PyQt5.QtCore import Qt, QObject, QThread, pyqtSignal
+from PyQt5.QtCore import Qt
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen
 
@@ -12,10 +12,13 @@ from FixedWidthTextParser.Seismic.SpsParser import Sps21Parser
 from SeismicFoldUi.Grid import Grid
 from SeismicFoldUi.FoldUi import FoldUi
 from SeismicFoldDbGisUi.FoldDbGisUi import FoldDbGisUi
+from SeismicFoldDbGisUi.FoldLoadThread import FoldLoadThread
+from SeismicFoldDbGisUi.FoldUpdateThread import FoldUpdateThread
+
 from ui.UIMainWindowForm import Ui_MainWindow
 import app.AboutDialog
 import app.app_info
-from app.file_access import read_dict_from_file, write_dict_to_file
+from app.file_access import read_dict_from_file
 
 DB_URL = 'db_url'
 GRID = 'grid_file'
@@ -56,11 +59,12 @@ class MainWindow(QMainWindow):
 
         self.__project_file = None
 
-        self.thread = None
         self.worker = None
 
         self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint& ~Qt.WindowMaximizeButtonHint)
+        self.setWindowFlags(self.windowFlags() & ~Qt.WindowCloseButtonHint & ~Qt.WindowMaximizeButtonHint)
+        self.__enable_ui(False)
+        self.ui.menu_file.setEnabled(True)
 
     def __enable_ui(self, enable: bool):
         self.ui.db_table_create_btn.setEnabled(enable)
@@ -74,7 +78,7 @@ class MainWindow(QMainWindow):
         self.__enable_ui(False)
         try:
             engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
-            fold = FoldDbGisUi(db_engine=engine, output=self.ui.output, progress_bar=self.ui.progress_bar)
+            fold = FoldDbGisUi(db_engine=engine)
             fold.create_table()
             self.ui.output.append('Table created.')
         except Exception as e:
@@ -86,7 +90,7 @@ class MainWindow(QMainWindow):
         self.__enable_ui(False)
         try:
             engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
-            fold = FoldDbGisUi(db_engine=engine, output=self.ui.output, progress_bar=self.ui.progress_bar)
+            fold = FoldDbGisUi(db_engine=engine)
             fold.delete_table()
             self.ui.output.append('Table deleted.')
         except Exception as e:
@@ -102,8 +106,6 @@ class MainWindow(QMainWindow):
         grid.read(self.ui.grid_file.text())
 
         self.__enable_ui(False)
-        self.thread = QThread()
-        # Step 3: Create a worker object
         self.worker = FoldUi(
             grid=grid,
             parser=parser,
@@ -120,38 +122,29 @@ class MainWindow(QMainWindow):
         self.worker.start()
         self.worker.finished.connect(self.signal_finished)
 
-        # except Exception as e:
-        #     self.ui.output.append(str(e))
-
     def action_fold_load(self):
         """load fold from csv file"""
         self.__enable_ui(False)
-        try:
-            start = time.time()
-            engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
-            fold = FoldDbGisUi(db_engine=engine, output=self.ui.output, progress_bar=self.ui.progress_bar)
-            self.ui.output.append('Loading fold ...')
-            fold.load_from_csv(self.ui.fold_file.text())
-            self.ui.output.append('Fold loaded in ' + self.timer(start, time.time()))
-        except Exception as e:
-            self.ui.output.append(str(e))
-        self.__enable_ui(True)
-        self.end_of_proc()
+        engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
+        self.worker = FoldLoadThread(db_engine=engine, csv_file=self.ui.fold_file.text())
+        self.worker.progress.connect(self.signal_progress)
+        self.worker.number_of_records.connect(self.signal_number_of_records)
+        self.worker.loading.connect(self.signal_loading)
+        self.worker.part_done.connect(self.end_of_proc)
+        self.worker.start()
+        self.worker.finished.connect(self.signal_finished)
 
     def action_fold_update(self):
         """updating fold from csv file"""
         self.__enable_ui(False)
-        try:
-            start = time.time()
-            engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
-            fold = FoldDbGisUi(db_engine=engine, output=self.ui.output, progress_bar=self.ui.progress_bar)
-            self.ui.output.append('Updating fold ...')
-            fold.update_from_csv(self.ui.fold_file.text())
-            self.ui.output.append('Fold updated in ' + self.timer(start, time.time()))
-        except Exception as e:
-            self.ui.output.append(str(e))
-        self.__enable_ui(True)
-        self.end_of_proc()
+        engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
+        self.worker = FoldUpdateThread(db_engine=engine, csv_file=self.ui.fold_file.text())
+        self.worker.progress.connect(self.signal_progress)
+        self.worker.number_of_records.connect(self.signal_number_of_records)
+        self.worker.loading.connect(self.signal_loading)
+        self.worker.part_done.connect(self.end_of_proc)
+        self.worker.start()
+        self.worker.finished.connect(self.signal_finished)
 
     def project_open(self):
         """project_open"""
@@ -165,6 +158,7 @@ class MainWindow(QMainWindow):
 
         self.project_read_from_file()
         self.ui.project.setTitle(self.__project_file)
+        self.__enable_ui(True)
 
     def file_open(self, previous_file: str, file_pattern: str):
         """file open - common method to get file name"""
@@ -190,7 +184,6 @@ class MainWindow(QMainWindow):
         self.ui.rps_file.setText(result[RPS])
         self.ui.xps_file.setText(result[XPS])
         self.ui.fold_file.setText(result[FOLD])
-        self.ui.verbose.setChecked(bool(result[VERBOSE]))
         self.ui.db_verbose.setChecked(bool(result[DB_VERBOSE]))
 
     @staticmethod
@@ -243,7 +236,7 @@ class MainWindow(QMainWindow):
         self.ui.progress_bar.setValue(counter)
 
     def signal_number_of_records(self, number_of_records):
-        self.ui.output.append('Number of records: ' + str(number_of_records))
+        self.ui.output.append("Number of records: {:,d}".format(number_of_records))
         self.ui.progress_bar.setMinimum(1)
         self.ui.progress_bar.setMaximum(number_of_records)
 

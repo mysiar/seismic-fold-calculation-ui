@@ -236,7 +236,10 @@ class FoldUi(QThread):
         return "{:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds)
 
     def run(self):
-        self.load_data()
-        self.calculate_fold()
-        self.write_fold2csv()
+        try:
+            self.load_data()
+            self.calculate_fold()
+            self.write_fold2csv()
+        except Exception as e:
+            self.loading.emit(str(e))
         self.finished.emit()
