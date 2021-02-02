@@ -2,4 +2,8 @@
 
 ### A basic tool to create project files
 
-![main windows](doc/app-0.0.1.png)
+### Main application
+![main windows](doc/app-1.0.0.png)
+
+### Project management
+![main windows](doc/app-1.0.0-project.png)
