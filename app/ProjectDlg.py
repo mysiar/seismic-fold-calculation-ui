@@ -1,10 +1,10 @@
 """
-    MainWindow
+    Project Dialog
 """
 import webbrowser
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QDialog
 
-from UIMainWindowForm import Ui_MainWindow
+from ui.UiProjectDlg import Ui_ProjectDlg
 from app import AboutDialog, app_info
 from app.file_access import read_dict_from_file, write_dict_to_file
 
@@ -17,29 +17,24 @@ VERBOSE = 'verbose'
 DB_VERBOSE = 'db_verbose'
 
 
-class MainWindow(QMainWindow):
+class ProjectDlg(QDialog):
     """class"""
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_ProjectDlg()
         self.ui.setupUi(self)
 
-        self.setWindowTitle(app_info.TITLE)
+        self.setWindowTitle(app_info.TITLE + ' - Project')
 
-        # menu
-        self.ui.actionNew_project.triggered.connect(self.project_new)
-        self.ui.actionOpen_project.triggered.connect(self.project_open)
-        self.ui.actionSave_project.triggered.connect(self.project_save)
-        self.ui.actionSave_as_project.triggered.connect(self.project_save_as)
-        self.ui.actionQuit.triggered.connect(self.quit)
+        self.ui.new_btn.clicked.connect(self.project_new)
+        self.ui.open_btn.clicked.connect(self.project_open)
+        self.ui.save_btn.clicked.connect(self.project_save)
+        self.ui.save_as_btn.clicked.connect(self.project_save_as)
 
-        self.ui.actionLicense.triggered.connect(self.help_license)
-        self.ui.actionAbout.triggered.connect(self.help_about)
-
-        self.ui.actionSave_project.setEnabled(False)
-        self.ui.actionSave_as_project.setEnabled(False)
+        self.ui.save_btn.setEnabled(False)
+        self.ui.save_as_btn.setEnabled(False)
 
         self.__project = {}
         self.__project_file = None
@@ -114,10 +109,17 @@ class MainWindow(QMainWindow):
             DB_VERBOSE: 0
         }
 
-        self.ui.actionSave_as_project.setEnabled(True)
-        self.ui.db_url.setText('')
         self.__project_file = None
         self.__project_changed = False
+
+        self.ui.save_btn.setEnabled(True)
+        self.ui.db_url.setText('')
+        self.ui.grid_file.setText('')
+        self.ui.sps_file.setText('')
+        self.ui.rps_file.setText('')
+        self.ui.xps_file.setText('')
+        self.ui.project.setTitle('')
+        self.ui.save_btn.setEnabled(False)
 
     def project_open(self):
         """project_open"""
@@ -130,7 +132,7 @@ class MainWindow(QMainWindow):
             return
 
         self.project_read_from_file()
-        self.ui.actionSave_as_project.setEnabled(True)
+        self.ui.save_as_btn.setEnabled(True)
         self.ui.project.setTitle(self.__project_file)
 
     def project_read_from_file(self):
@@ -179,6 +181,7 @@ class MainWindow(QMainWindow):
 
         self.__project_file = project_file
         self.project_save_to_file()
+        self.ui.project.setTitle(self.__project_file)
 
     @staticmethod
     def help_license():
@@ -196,5 +199,5 @@ class MainWindow(QMainWindow):
         self.close()
 
     def __form_changed(self):
-        self.ui.actionSave_project.setEnabled(True)
+        self.ui.save_btn.setEnabled(True)
         self.__project_changed = True

@@ -16,6 +16,7 @@ from SeismicFoldDbGisUi.FoldLoadThread import FoldLoadThread
 from SeismicFoldDbGisUi.FoldUpdateThread import FoldUpdateThread
 
 from ui.UIMainWindowForm import Ui_MainWindow
+from app.ProjectDlg import ProjectDlg
 import app.AboutDialog
 import app.app_info
 from app.file_access import read_dict_from_file
@@ -47,6 +48,8 @@ class MainWindow(QMainWindow):
         # menu
         self.ui.actionOpen_project.triggered.connect(self.project_open)
         self.ui.actionQuit.triggered.connect(self.quit)
+
+        self.ui.action_project.triggered.connect(self.action_project)
 
         self.ui.actionLicense.triggered.connect(self.help_license)
         self.ui.actionAbout.triggered.connect(self.help_about)
@@ -246,3 +249,11 @@ class MainWindow(QMainWindow):
     def signal_finished(self):
         self.__enable_ui(True)
         self.ui.progress_bar.setValue(1)
+
+    @staticmethod
+    def action_project():
+        """
+            Displays Dialog
+        """
+        dlg = ProjectDlg()
+        dlg.exec_()
