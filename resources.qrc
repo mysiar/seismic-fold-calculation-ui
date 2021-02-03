@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="sfc-ui">
+    <file>ui/icons/tree.png</file>
+    <file>ui/icons/wrench--pencil-16.png</file>
     <file>ui/icons/cross-16.png</file>
     <file>ui/icons/cross-24.png</file>
     <file>ui/icons/disk-16.png</file>

@@ -129,20 +129,20 @@ class FoldUi(QThread):
                 if relation is not None:
 
                     counter += 1
-                sln = relation.line
-                spn = relation.point
-                sidx = relation.point_idx
+                    sln = relation.line
+                    spn = relation.point
+                    sidx = relation.point_idx
 
-                if sln != previous_sln or spn != previous_spn or sidx != previous_sidx:
-                    combined_sp = self.combine_point_number_from_partials(sln, spn, sidx)
-                    sp: Point
-                    sp = self.__sps[combined_sp]
+                    if sln != previous_sln or spn != previous_spn or sidx != previous_sidx:
+                        combined_sp = self.combine_point_number_from_partials(sln, spn, sidx)
+                        sp: Point
+                        sp = self.__sps[combined_sp]
 
-                previous_sln = sln
-                previous_spn = spn
-                previous_sidx = sidx
+                    previous_sln = sln
+                    previous_spn = spn
+                    previous_sidx = sidx
 
-                self.calculate_fold4xps_record(sp, relation)
+                    self.calculate_fold4xps_record(sp, relation)
                 line = xps.readline()
 
         self.loading.emit('Calculated in ' + self.timer(start, time.time()))

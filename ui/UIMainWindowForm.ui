@@ -414,7 +414,10 @@
     </property>
     <addaction name="actionOpen_project"/>
     <addaction name="separator"/>
+    <addaction name="actionSettings"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_help">
     <property name="title">
@@ -498,8 +501,21 @@
    </property>
   </action>
   <action name="action_project">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/sfc-ui/ui/icons/tree.png</normaloff>:/sfc-ui/ui/icons/tree.png</iconset>
+   </property>
    <property name="text">
     <string>Project</string>
+   </property>
+  </action>
+  <action name="actionSettings">
+   <property name="icon">
+    <iconset resource="../resources.qrc">
+     <normaloff>:/sfc-ui/ui/icons/wrench--pencil-16.png</normaloff>:/sfc-ui/ui/icons/wrench--pencil-16.png</iconset>
+   </property>
+   <property name="text">
+    <string>Settings</string>
    </property>
   </action>
  </widget>

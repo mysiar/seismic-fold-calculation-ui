@@ -1,10 +1,9 @@
 """
     Project Dialog
 """
-import webbrowser
 from PyQt5.QtWidgets import QFileDialog, QDialog
 
-from ui.UiProjectDlg import Ui_ProjectDlg
+from ui.UIProjectDlg import Ui_ProjectDlg
 from app import AboutDialog, app_info
 from app.file_access import read_dict_from_file, write_dict_to_file
 
@@ -182,21 +181,6 @@ class ProjectDlg(QDialog):
         self.__project_file = project_file
         self.project_save_to_file()
         self.ui.project.setTitle(self.__project_file)
-
-    @staticmethod
-    def help_license():
-        """help_license"""
-        webbrowser.open(app_info.LICENSE_URL)
-
-    @staticmethod
-    def help_about():
-        """Displays Application About Dialog"""
-        dlg = AboutDialog.AboutDialog()
-        dlg.exec_()
-
-    def quit(self):
-        """close app"""
-        self.close()
 
     def __form_changed(self):
         self.ui.save_btn.setEnabled(True)

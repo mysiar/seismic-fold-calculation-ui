@@ -4,7 +4,7 @@
 import webbrowser
 import time
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSettings
 from sqlalchemy import create_engine
 from sqlalchemy.event import listen
 
@@ -17,8 +17,10 @@ from SeismicFoldDbGisUi.FoldUpdateThread import FoldUpdateThread
 
 from ui.UIMainWindowForm import Ui_MainWindow
 from app.ProjectDlg import ProjectDlg
+from app.SettingsDlg import SettingsDlg
 import app.AboutDialog
 import app.app_info
+import app.app_settings as app_settings
 from app.file_access import read_dict_from_file
 
 DB_URL = 'db_url'
@@ -43,10 +45,14 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.settings = QSettings(app_settings.ORG, app_settings.APP)
+        self.__settings_read()
+
         self.setWindowTitle(app.app_info.TITLE)
 
         # menu
         self.ui.actionOpen_project.triggered.connect(self.project_open)
+        self.ui.actionSettings.triggered.connect(self.action_settings)
         self.ui.actionQuit.triggered.connect(self.quit)
 
         self.ui.action_project.triggered.connect(self.action_project)
@@ -69,13 +75,22 @@ class MainWindow(QMainWindow):
         self.__enable_ui(False)
         self.ui.menu_file.setEnabled(True)
 
+
+
     def __enable_ui(self, enable: bool):
-        self.ui.db_table_create_btn.setEnabled(enable)
-        self.ui.db_table_delete_btn.setEnabled(enable)
         self.ui.fold_calculate_btn.setEnabled(enable)
         self.ui.fold_load_btn.setEnabled(enable)
         self.ui.fold_update_btn.setEnabled(enable)
         self.ui.menu_file.setEnabled(enable)
+        if enable is False:
+            self.ui.db_table_create_btn.setEnabled(enable)
+            self.ui.db_table_delete_btn.setEnabled(enable)
+        else:
+            self.__enable_ui_on_settings()
+
+    def __enable_ui_on_settings(self):
+        self.ui.db_table_create_btn.setEnabled(not self.settings.value(app_settings.DISABLE_CREATE_TABLE_BTN, type=bool))
+        self.ui.db_table_delete_btn.setEnabled(not self.settings.value(app_settings.DISABLE_DELETE_TABLE_BTN, type=bool))
 
     def action_db_table_create(self):
         self.__enable_ui(False)
@@ -257,3 +272,12 @@ class MainWindow(QMainWindow):
         """
         dlg = ProjectDlg()
         dlg.exec_()
+
+    def action_settings(self):
+        dlg = SettingsDlg(self.settings)
+        dlg.exec_()
+        self.__settings_read()
+
+    def __settings_read(self):
+        self.ui.db_table_create_btn.setEnabled(not self.settings.value(app_settings.DISABLE_CREATE_TABLE_BTN, False, type=bool))
+        self.ui.db_table_delete_btn.setEnabled(not self.settings.value(app_settings.DISABLE_DELETE_TABLE_BTN, False, type=bool))
