@@ -6,4 +6,7 @@
 ![main windows](doc/app-1.0.0.png)
 
 ### Project management
-![main windows](doc/app-1.0.0-project.png)
+![project](doc/app-1.0.0-project.png)
+
+### Settings
+![settings](doc/app-1.0.0-settings.png)

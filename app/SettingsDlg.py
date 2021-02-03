@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import QSettings
 from ui.UISettingsDlg import Ui_Settings
 import app.app_settings as app_settings
-
+from app import app_info
 
 class SettingsDlg(QDialog):
     def __init__(self, settings: QSettings, parent=None):
@@ -15,6 +15,8 @@ class SettingsDlg(QDialog):
 
         self.ui.create_db_table.stateChanged.connect(self.__form_changed)
         self.ui.delete_db_table.stateChanged.connect(self.__form_changed)
+
+        self.setWindowTitle(app_info.TITLE + ' - Settings')
 
 
 
