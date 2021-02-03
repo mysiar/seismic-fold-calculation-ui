@@ -3,10 +3,10 @@
 ### A basic tool to create project files
 
 ### Main application
-![main windows](doc/app-1.0.0.png)
+<span style="display:block;text-align:center">![main windows](doc/app-1.0.0.png)</span>
 
 ### Project management
-![project](doc/app-1.0.0-project.png)
+<span style="display:block;text-align:center">![project](doc/app-1.0.0-project.png)</span>
 
 ### Settings
-![settings](doc/app-1.0.0-settings.png)
+<span style="display:block;text-align:center">![settings](doc/app-1.0.0-settings.png)</span>
