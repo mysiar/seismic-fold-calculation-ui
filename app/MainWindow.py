@@ -180,7 +180,6 @@ class MainWindow(QMainWindow):
         self.ui.project.setTitle(self.__project_file)
         self.__enable_ui(True)
         self.__prepare_logging()
-        logging.info('Project opened')
 
     def file_open(self, previous_file: str, file_pattern: str):
         """file open - common method to get file name"""
@@ -295,6 +294,8 @@ class MainWindow(QMainWindow):
         log_filename = self.__project_file + '.log'
         log_format = '%(asctime)s - %(message)s'
         logging.basicConfig(filename=log_filename, filemode='a', format=log_format, level=logging.INFO)
+        # prevent sqlalchemy logging everything
+        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
 
     def __log(self, msg: str):
         self.ui.output.append(msg)
