@@ -2,7 +2,8 @@
     MainWindow
 """
 import webbrowser
-import time
+import logging
+from importlib import reload
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from PyQt5.QtCore import Qt, QSettings
 from sqlalchemy import create_engine
@@ -75,8 +76,6 @@ class MainWindow(QMainWindow):
         self.__enable_ui(False)
         self.ui.menu_file.setEnabled(True)
 
-
-
     def __enable_ui(self, enable: bool):
         self.ui.fold_calculate_btn.setEnabled(enable)
         self.ui.fold_load_btn.setEnabled(enable)
@@ -89,8 +88,10 @@ class MainWindow(QMainWindow):
             self.__enable_ui_on_settings()
 
     def __enable_ui_on_settings(self):
-        self.ui.db_table_create_btn.setEnabled(not self.settings.value(app_settings.DISABLE_CREATE_TABLE_BTN, type=bool))
-        self.ui.db_table_delete_btn.setEnabled(not self.settings.value(app_settings.DISABLE_DELETE_TABLE_BTN, type=bool))
+        self.ui.db_table_create_btn.setEnabled(
+            not self.settings.value(app_settings.DISABLE_CREATE_TABLE_BTN, type=bool))
+        self.ui.db_table_delete_btn.setEnabled(
+            not self.settings.value(app_settings.DISABLE_DELETE_TABLE_BTN, type=bool))
 
     def action_db_table_create(self):
         self.__enable_ui(False)
@@ -98,9 +99,10 @@ class MainWindow(QMainWindow):
             engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
             fold = FoldDbGisUi(db_engine=engine)
             fold.create_table()
-            self.ui.output.append('Table created.')
+            self.__log('Table created.')
+
         except Exception as e:
-            self.ui.output.append(str(e))
+            self.__log(str(e))
         self.__enable_ui(True)
         self.end_of_proc()
 
@@ -110,9 +112,9 @@ class MainWindow(QMainWindow):
             engine = self._create_db_engine(db_url=self.ui.db_url.text(), db_verbose=self.ui.db_verbose.isChecked())
             fold = FoldDbGisUi(db_engine=engine)
             fold.delete_table()
-            self.ui.output.append('Table deleted.')
+            self.__log('Table deleted.')
         except Exception as e:
-            self.ui.output.append(str(e))
+            self.__log(str(e))
         self.__enable_ui(True)
         self.end_of_proc()
 
@@ -177,6 +179,8 @@ class MainWindow(QMainWindow):
         self.project_read_from_file()
         self.ui.project.setTitle(self.__project_file)
         self.__enable_ui(True)
+        self.__prepare_logging()
+        logging.info('Project opened')
 
     def file_open(self, previous_file: str, file_pattern: str):
         """file open - common method to get file name"""
@@ -249,17 +253,18 @@ class MainWindow(QMainWindow):
 
     def end_of_proc(self):
         self.ui.output.append('-----------------------------------------------------')
+        logging.info('-----------------------------------------------------')
 
     def signal_progress(self, counter: int):
         self.ui.progress_bar.setValue(counter)
 
     def signal_number_of_records(self, number_of_records):
-        self.ui.output.append("Number of records: {:,d}".format(number_of_records))
+        self.__log("Number of records: {:,d}".format(number_of_records))
         self.ui.progress_bar.setMinimum(1)
         self.ui.progress_bar.setMaximum(number_of_records)
 
     def signal_loading(self, msg: str):
-        self.ui.output.append(msg)
+        self.__log(msg)
 
     def signal_finished(self):
         self.__enable_ui(True)
@@ -279,5 +284,18 @@ class MainWindow(QMainWindow):
         self.__settings_read()
 
     def __settings_read(self):
-        self.ui.db_table_create_btn.setEnabled(not self.settings.value(app_settings.DISABLE_CREATE_TABLE_BTN, False, type=bool))
-        self.ui.db_table_delete_btn.setEnabled(not self.settings.value(app_settings.DISABLE_DELETE_TABLE_BTN, False, type=bool))
+        self.ui.db_table_create_btn.setEnabled(
+            not self.settings.value(app_settings.DISABLE_CREATE_TABLE_BTN, False, type=bool))
+        self.ui.db_table_delete_btn.setEnabled(
+            not self.settings.value(app_settings.DISABLE_DELETE_TABLE_BTN, False, type=bool))
+
+    def __prepare_logging(self):
+        logging.shutdown()
+        reload(logging)
+        log_filename = self.__project_file + '.log'
+        log_format = '%(asctime)s - %(message)s'
+        logging.basicConfig(filename=log_filename, filemode='a', format=log_format, level=logging.INFO)
+
+    def __log(self, msg: str):
+        self.ui.output.append(msg)
+        logging.info(msg)
